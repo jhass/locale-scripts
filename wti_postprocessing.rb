@@ -25,7 +25,7 @@ patterns = [
 ]
 
 blacklist = []
-["ca", "gl", "en", "en-US", "en-GB" ].each do |code|
+["ca", "gl", "en", "en-US", "en-GB", "en-AU" ].each do |code|
   patterns.each do |pattern|
     blacklist << pattern.gsub("*", code)
   end
