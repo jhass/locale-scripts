@@ -5,6 +5,7 @@ $KCODE = 'UTF8' unless RUBY_VERSION >= '1.9'
 require 'rubygems'
 require 'yaml'
 require 'ya2yaml'
+require 'fileutils'
 
 YAML::ENGINE.yamler = 'psych'
 
@@ -19,12 +20,12 @@ HEADER
 
 patterns = [
   "config/locales/devise/devise.*.yml",
- # "config/locales/diaspora/*.yml",
+  "config/locales/diaspora/*.yml",
   "config/locales/javascript/javascript.*.yml"
 ]
 
 blacklist = []
-["ca", "gl", "en" ].each do |code|
+["ca", "gl", "en", "en-US", "en-GB" ].each do |code|
   patterns.each do |pattern|
     blacklist << pattern.gsub("*", code)
   end
@@ -64,28 +65,34 @@ patterns.each do |pattern|
       puts "\t...loaded"
       removed_keys = data.clean!
       puts "\t...cleaned (removed #{removed_keys} keys)"
-      root = data.keys.first
-      data[mappings[root]] = data.delete(root)  if mappings.keys.include?(root)
-      puts "\t...updated root (if necessary)"
-      
-      cleaned_yaml = data.ya2yaml(:syck_compatible => true)
-      puts "\t...converted back to yaml"
-      cleaned_yaml.gsub!(/^--- $/, "")
-      cleaned_lines = cleaned_yaml.split("\n")
-      cleaned_lines.collect! do |line|
-        line.rstrip!
-        line.gsub!(/^(\s+[\w\d_]+:\s)([\w\d]+)$/, "\\1\"\\2\"")
-        line
+      unless data.empty?
+        root = data.keys.first
+        data[mappings[root]] = data.delete(root)  if mappings.keys.include?(root)
+        puts "\t...updated root (if necessary)"
+        
+        cleaned_yaml = data.ya2yaml(:syck_compatible => true)
+        puts "\t...converted back to yaml"
+        cleaned_yaml.gsub!(/^--- $/, "")
+        cleaned_lines = cleaned_yaml.split("\n")
+        cleaned_lines.collect! do |line|
+          line.rstrip!
+          line.gsub!(/^(\s+[\w\d_]+:\s)([\w\d]+)$/, "\\1\"\\2\"")
+          line
+        end
+        cleaned_yaml = cleaned_lines.join("\n")
+        puts "\t...cleaned and sanitized generated yaml"
+        
+        cleaned_file = open(file, 'w')
+        cleaned_file.write(header)
+        puts "\t...wrote header"
+        cleaned_file.write(cleaned_yaml)
+        cleaned_file.close
+        puts "\t...wrote yaml back into file"
+      else
+        puts "\t...no keys left! Deleting file!!!"
+        FileUtils.rm file
+        puts "\t...deleted!!!"
       end
-      cleaned_yaml = cleaned_lines.join("\n")
-      puts "\t...cleaned and sanitized generated yaml"
-      
-      cleaned_file = open(file, 'w')
-      cleaned_file.write(header)
-      puts "\t...wrote header"
-      cleaned_file.write(cleaned_yaml)
-      cleaned_file.close
-      puts "\t...wrote yaml back into file"
     end
   end
 end

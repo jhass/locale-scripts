@@ -25,9 +25,10 @@ git checkout master
 local_changes=$(git stash)
 git pull origin master
 
-# Pull from from 99translations and clean locale files
-$location/update-from-99translations.py
-$location/clean_untranslated_keys.rb
+# Pull from from web translate it and clean locale files
+wti pull
+$location/rename_locales.rb
+$location/wti_postprocessing.rb
 
 # Update rails translations
 bundle update rails-i18n
