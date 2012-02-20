@@ -38,7 +38,7 @@ git add Gemfile.lock
 git add config/locales
 git commit -m "updated $(git status -s config/locales | wc -l) locale files [ci skip]"
 
-# Pull locales not handled through 99translations
+# Pull locales not handled through web translate it
 git pull catalan master
 
 # Check for syntax errors

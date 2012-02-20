@@ -76,7 +76,7 @@ patterns.each do |pattern|
         cleaned_lines = cleaned_yaml.split("\n")
         cleaned_lines.collect! do |line|
           line.rstrip!
-          line.gsub!(/^(\s+[\w\d_]+:\s)([\w\d]+)$/, "\\1\"\\2\"")
+          line.gsub!(/^(\s+[\w\d_]+:\s)([^"\s]+)$/, "\\1\"\\2\"")
           line
         end
         cleaned_yaml = cleaned_lines.join("\n")
