@@ -30,7 +30,7 @@ mappings.each do |from, to|
       if filename =~ regex
         if $1 == from
           dst = file.gsub(from, to)
-          puts "Rename #{file} to #{dst}"
+          puts "#{file} -> #{File.basename dst}"
           FileUtils.mv file, dst
         end
       end

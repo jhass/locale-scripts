@@ -23,23 +23,23 @@ fi
 # Ensure known state and fast forward push
 git checkout master
 local_changes=$(git stash)
-git pull origin master
+git pull origin master &&
 
 # Pull from from web translate it and clean locale files
-wti pull
-$location/rename_locales.rb
-$location/wti_postprocessing.rb
+wti pull &&
+$location/rename_locales.rb &&
+$location/wti_postprocessing.rb &&
 
 # Update rails translations
-bundle update rails-i18n
+bundle update rails-i18n &&
 
 # Commit changes
-git add Gemfile.lock
-git add config/locales
-git commit -m "updated $(git status -s config/locales | wc -l) locale files [ci skip]"
+git add Gemfile.lock &&
+git add config/locales &&
+git commit -m "updated $(git status -s config/locales | wc -l) locale files [ci skip]" &&
 
 # Pull locales not handled through web translate it
-git pull catalan master
+git pull catalan master &&
 
 # Check for syntax errors
 $location/yml_check.rb

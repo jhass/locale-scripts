@@ -3,6 +3,7 @@
 $KCODE = 'UTF8' unless RUBY_VERSION >= '1.9'
 
 require 'rubygems'
+require 'active_support/core_ext/hash/deep_merge'
 require 'yaml'
 require 'ya2yaml'
 require 'fileutils'
@@ -30,6 +31,19 @@ blacklist = []
     blacklist << pattern.gsub("*", code)
   end
 end
+
+allow_empty = {
+  "config/locales/javascript/javascript.*.yml" => {
+    "javascripts" => {
+      "timeago" => {
+        "prefixAgo" => "",
+        "suffixAgo" => "",
+        "suffixFromNow" => "",
+        "prefixFromNow" => ""
+      }
+    }
+  }
+}
 
 mappings = YAML.load_file(".wti")["mappings"]
 
@@ -62,13 +76,20 @@ patterns.each do |pattern|
       puts
       puts "Processing #{file}:"
       data = YAML.load_file file
-      puts "\t...loaded"
       removed_keys = data.clean!
-      puts "\t...cleaned (removed #{removed_keys} keys)"
+      puts "\t...removed #{removed_keys} keys" if removed_keys > 0
       unless data.empty?
         root = data.keys.first
-        data[mappings[root]] = data.delete(root)  if mappings.keys.include?(root)
-        puts "\t...updated root (if necessary)"
+        if mappings.keys.include?(root)
+          data[mappings[root]] = data.delete(root)
+          root = mappings[root]
+        puts "\t...updated root"
+        end
+        
+        if allow_empty.has_key?(pattern)
+          data = {root => allow_empty[pattern].deep_merge(data[root])}
+          puts "\t...restored allowed empty keys"
+        end
         
         cleaned_yaml = data.ya2yaml(:syck_compatible => true)
         puts "\t...converted back to yaml"
@@ -76,7 +97,7 @@ patterns.each do |pattern|
         cleaned_lines = cleaned_yaml.split("\n")
         cleaned_lines.collect! do |line|
           line.rstrip!
-          line.gsub!(/^(\s+[\w\d_]+:\s)([^"\s]+)$/, "\\1\"\\2\"")
+          line.gsub!(/^(\s+[\w\d_]+:\s)([^"\s|]+)$/, "\\1\"\\2\"")
           line
         end
         cleaned_yaml = cleaned_lines.join("\n")
@@ -84,10 +105,9 @@ patterns.each do |pattern|
         
         cleaned_file = open(file, 'w')
         cleaned_file.write(header)
-        puts "\t...wrote header"
         cleaned_file.write(cleaned_yaml)
         cleaned_file.close
-        puts "\t...wrote yaml back into file"
+        puts "\t...wrote header and yaml back into file"
       else
         puts "\t...no keys left! Deleting file!!!"
         FileUtils.rm file
