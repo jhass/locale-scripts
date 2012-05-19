@@ -11,6 +11,7 @@ locales.uniq!
 source_template = "tmp/cldr/*/plurals.rb"
 
 result = "{\n"
+result += '  :\'art-nvi\' => { :i18n => {:plural => { :keys => [:zero, :one, :two, :few, :other], :rule => lambda { |n| n == 0 ? :zero : n == 1 ? :one : n == 2 ? :two : n == 3 ? :few : :other }, :js_rule => \'function (n) { return n == 0 ? "zero" : n == 1 ? "one" : n == 2 ? "two" : n == 3 ? "few" : "other" }\' } } },'
 
 locales.each do |locale|
   source = source_template.gsub("*", locale)
