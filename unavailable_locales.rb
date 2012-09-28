@@ -10,7 +10,7 @@ missing = {}
 files.each do |file|
   if file =~ regex
     unless available.include? $1
-      open(file) do |f|
+      open(file, "r:utf-8") do |f|
         missing[$1] ||= 0
         missing[$1] += f.read.split("\n").size
       end

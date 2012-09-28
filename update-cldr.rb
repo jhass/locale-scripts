@@ -5,7 +5,7 @@ require 'yaml'
 destination = "config/locales/cldr/plurals.rb"
 
 locales = YAML.load_file("config/locale_settings.yml")["available"].keys
-locales.collect! { |locale| locale[0..1] }
+locales.collect! { |locale| locale.split("-")[0].split("_")[0] }
 locales.uniq!
 
 source_template = "tmp/cldr/*/plurals.rb"

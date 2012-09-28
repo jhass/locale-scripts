@@ -12,6 +12,6 @@ fi
 
 rm -Rf vendor/cldr
 rm -Rf tmp/cldr
-thor cldr:download --source=http://www.unicode.org/Public/cldr/21/core.zip
+thor cldr:download --source=http://www.unicode.org/Public/cldr/22/core.zip
 thor cldr:export --components Plurals --target tmp/cldr
 $location/update-cldr.rb
