@@ -12,8 +12,8 @@ if [ ! -d ".git" ]; then
 fi
 
 if [ "$1" = "abort" -o "$1" = "retry" ]; then
-    git checkout master
-    git reset origin/master --hard
+    git checkout develop
+    git reset origin/develop --hard
     rm -Rf config/locales
     git checkout config/locales
 fi
@@ -27,9 +27,10 @@ fi
 
 # Ensure known state and fast forward push
 if [ "$1" != "continue" ]; then
-  git checkout master
+  git checkout develop
   local_changes=$(git stash)
-  git pull origin master
+  git fetch origin
+  git pull origin develop
 fi
 
 # Pull from from web translate it and clean locale files
