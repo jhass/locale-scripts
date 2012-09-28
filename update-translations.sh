@@ -48,9 +48,10 @@ git commit -m "updated $(git status -s config/locales | wc -l) locale files [ci 
 # Pull locales not handled through web translate it
 git pull catalan master &&
 
-# Check for syntax errors and unavailable locales
+# Check for syntax errors and unavailable stuff
 $location/yml_check.rb
 $location/unavailable_locales.rb
+$location/cldr_check.rb
 
 # Restore local changes if needed
 if [ "$local_changes" != "No local changes to save" ]; then
