@@ -21,6 +21,7 @@ locales.each do |locale|
     rule_body = rule.match(/lambda \{ \|n\| (.+?)\}/)[1]
     rule_body.gsub!(/:(\w+)/, "\"\\1\"")
     rule_body.gsub!(/\[([\d, ]+)\]\.include\?\(([n%\d ]+)\)/, "jQuery.inArray(\\2, [\\1]) != -1")
+    rule_body.gsub!(/n\.between\?\((\d+), (\d+)\)/, "n >= \\1 && n <= \\2")
     rule_body.strip!
     js_rule = "function (n) { return #{rule_body} }"
     
