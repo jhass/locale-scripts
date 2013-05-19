@@ -38,9 +38,6 @@ wti pull &&
 $location/rename_locales.rb &&
 $location/wti_postprocessing.rb &&
 
-# Update rails translations
-bundle update rails-i18n &&
-
 # Commit changes
 git add Gemfile.lock &&
 git add config/locales &&

@@ -11,7 +11,7 @@ require 'fileutils'
 YAML::ENGINE.yamler = 'psych'
 
 header = <<HEADER
-#   Copyright (c) 2010-2012, Diaspora Inc.  This file is
+#   Copyright (c) 2010-2013, Diaspora Inc.  This file is
 #   licensed under the Affero General Public License version 3 or later.  See
 #   the COPYRIGHT file.
 
@@ -19,21 +19,18 @@ header = <<HEADER
 HEADER
 
 
-patterns = [
-  "config/locales/devise/devise.*.yml",
-  "config/locales/diaspora/*.yml",
-  "config/locales/javascript/javascript.*.yml"
-]
+patterns = %w{
+  config/locales/devise/devise.*.yml
+  config/locales/diaspora/*.yml
+  config/locales/javascript/javascript.*.yml
+}
 
-blacklist = []
-["ca", "gl", "sq", "en", "en-US", "en-GB", "en-AU" ].each do |code|
-  patterns.each do |pattern|
-    blacklist << pattern.gsub("*", code)
-  end
-end
+blacklist = %w{ca gl sq en en-US en-GB en-AU}.map { |code|
+  patterns.map { |pattern| pattern.gsub("*", code) }
+}.flatten
 
 allow_empty = {
-  "config/locales/javascript/javascript.*.yml" => {
+  %r{config/locales/javascript/javascript\.[\w_-]+\.yml} => {
     "javascripts" => {
       "timeago" => {
         "prefixAgo" => "",
@@ -48,71 +45,62 @@ allow_empty = {
 mappings = YAML.load_file(".wti")["mappings"]
 
 class Hash
-  def clean!
-    cleaned = Hash.new
+  def compact!
     removed_keys = 0
     
-    self.keys.each do |key|
-      val = self[key]
-      
-      removed_keys += val.clean! if val.is_a?(Hash)
-      
-      if val.nil? ||
-         ((val.is_a?(Hash) || val.is_a?(Array)) && val.empty?) #||
-         #(val.is_a?(String)                     && val.strip.empty?)
-
-        self.delete(key)
-        removed_keys += 1
+    each do |key, val|
+      removed_keys += val.compact! if val.is_a? Hash
+      removed_keys += if val.nil? || ((val.is_a?(Hash) || val.is_a?(Array)) && val.empty?)
+        delete(key)
+        1
+      else
+        0
       end
     end
     
-    return removed_keys
+    removed_keys
   end
 end
 
-patterns.each do |pattern|
-  Dir[pattern].each do |file|
-    unless blacklist.include?(file)
-      puts
-      puts "Processing #{file}:"
-      data = YAML.load_file file
-      removed_keys = data.clean!
-      puts "\t...removed #{removed_keys} keys" if removed_keys > 0
-      unless data.empty?
-        root = data.keys.first
-        if mappings.keys.include?(root)
-          data[mappings[root]] = data.delete(root)
-          root = mappings[root]
-        puts "\t...updated root"
-        end
-        
-        if allow_empty.has_key?(pattern)
-          data = {root => allow_empty[pattern].deep_merge(data[root])}
-          puts "\t...restored allowed empty keys"
-        end
-        
-        cleaned_yaml = data.ya2yaml(:syck_compatible => true)
-        puts "\t...converted back to yaml"
-        cleaned_yaml.gsub!(/^--- $/, "")
-        cleaned_lines = cleaned_yaml.split("\n")
-        cleaned_lines.collect! do |line|
-          line.rstrip!
-          line.gsub!(/^(\s+[\w\d_]+:\s)([^"\s|]+)$/, "\\1\"\\2\"")
-          line
-        end
-        cleaned_yaml = cleaned_lines.join("\n")
-        puts "\t...cleaned and sanitized generated yaml"
-        
-        cleaned_file = open(file, 'w')
-        cleaned_file.write(header)
-        cleaned_file.write(cleaned_yaml)
-        cleaned_file.close
-        puts "\t...wrote header and yaml back into file"
-      else
-        puts "\t...no keys left! Deleting file!!!"
-        FileUtils.rm file
-        puts "\t...deleted!!!"
-      end
-    end
+Dir[*patterns].each do |file|
+  next if blacklist.include? file
+  
+  puts "\nProcessing #{file}:"
+  data = YAML.load_file file
+  removed_keys = data.compact!
+  puts "\t...removed #{removed_keys} keys" if removed_keys > 0
+  
+  if data.empty?
+    puts "\t...no keys left! Deleting file!"
+    FileUtils.rm file
+    puts "\t...deleted!"
+    next
   end
+  
+  root = data.keys.first
+  
+  if mappings.has_key? root
+    data[mappings[root]] = data.delete root
+    root = mappings[root]
+    puts "\t...updated root"
+  end
+  
+  if empty_data = (allow_empty.find { |key, _| file =~ key } || []).last
+    data[root] = empty_data.deep_merge data[root]
+    puts "\t...restored allowed empty keys"
+  end
+  
+  cleaned_yaml = data.ya2yaml(syck_compatible: true)
+  puts "\t...converted back to yaml"
+  cleaned_yaml.gsub! /^--- $/, ""
+  cleaned_yaml = cleaned_yaml.split("\n").map { |line|
+    line.rstrip.gsub /^(\s+[\w\d_]+:\s)([^"\s|]+)$/, "\\1\"\\2\""
+  }.join("\n")
+  puts "\t...cleaned and sanitized generated yaml"
+  
+  open(file, 'w') do |file|
+    file.write header
+    file.write cleaned_yaml
+  end
+  puts "\t...wrote header and yaml back into file"
 end

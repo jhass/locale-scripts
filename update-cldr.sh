@@ -12,6 +12,6 @@ fi
 
 rm -Rf vendor/cldr
 rm -Rf tmp/cldr
-thor cldr:download --source=http://www.unicode.org/Public/cldr/22/core.zip
-thor cldr:export --components Plurals --target tmp/cldr
+ruby -I$GEM_HOME/gems/ruby-cldr-0.0.2/lib $(which thor) cldr:download --source=http://www.unicode.org/Public/cldr/23.1/core.zip
+ruby -I$GEM_HOME/gems/ruby-cldr-0.0.2/lib $(which thor) cldr:export --components Plurals --target tmp/cldr
 $location/update-cldr.rb
