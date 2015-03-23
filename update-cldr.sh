@@ -11,11 +11,6 @@ export BUNDLE_GEMFILE="$location/Gemfile"
 export BUNDLE_PATH="$location/vendor/bundle"
 bundle install
 
-# rm -Rf vendor/cldr
-# rm -Rf tmp/cldr
-# ruby -I$GEM_HOME/gems/ruby-cldr-0.0.2/lib $(which thor) cldr:download --source=http://www.unicode.org/Public/cldr/23.1/core.zip
-# ruby -I$GEM_HOME/gems/ruby-cldr-0.0.2/lib $(which thor) cldr:export --components Plurals --target tmp/cldr
-
 cldr_core="$location/vendor/cldr-core"
 
 if [ -d "$cldr_core" ]; then

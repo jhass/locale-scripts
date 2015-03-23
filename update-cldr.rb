@@ -24,7 +24,7 @@ class CldrPlurals::DiasporaEmitter < CldrPlurals::Compiler::Emitter
     __w = ->(str) { to_num.(_w.(str)) }
     RUNTIME
 
-    JS_RUNTIME = "(function(){return this.buildArgsFor=function(t){return[this.n(t),this.i(t),this.f(t),this.t(t),this.v(t),this.w(t)]},this.n=function(t){return this.toNum(t.indexOf(\".\")>-1?this._n(t).replace(/([0]+\\.$)/,\"\"):this._n(t))},this.i=function(t){return this.toNum(this._i(t))},this.f=function(t){return this.toNum(this._f(t))},this.t=function(t){return this.toNum(this._t(t))},this.v=function(t){return this.toNum(this._v(t))},this.w=function(t){return this.toNum(this._w(t))},this.toNum=function(t){return 0==t.length?0:t.indexOf(\".\")>-1?parseFloat(t):parseInt(t)},this._n=function(t){return/(-)?(.*)/.exec(t)[2]},this._i=function(t){return/([\\d]+)(\\..*)?/.exec(this._n(t))[1]},this._f=function(t){return/([\\d]+\\.?)(.*)/.exec(this._n(t))[2]},this._t=function(t){return this._f(t).replace(/([0]+$)/,\"\")},this._v=function(t){return this._f(t).length.toString()},this._w=function(t){return this._t(t).length.toString()},this}).call({});"
+    JS_RUNTIME = "(function(){return this.buildArgsFor=function(t){return[this.n(t),this.i(t),this.f(t),this.t(t),this.v(t),this.w(t)]},this.n=function(t){return this.toNum(t.indexOf(\".\")>-1?this._n(t).replace(/([0]+\\.$)/,\"\"):this._n(t))},this.i=function(t){return this.toNum(this._i(t))},this.f=function(t){return this.toNum(this._f(t))},this.t=function(t){return this.toNum(this._t(t))},this.v=function(t){return this.toNum(this._v(t))},this.w=function(t){return this.toNum(this._w(t))},this.toNum=function(t){return 0==t.length?0:t.indexOf(\".\")>-1?parseFloat(t):parseInt(t)},this._n=function(t){return/(-)?(.*)/.exec(t)[2]},this._i=function(t){return/([\\d]+)(\\..*)?/.exec(this._n(t))[1]},this._f=function(t){return/([\\d]+\\.?)(.*)/.exec(this._n(t))[2]},this._t=function(t){return this._f(t).replace(/([0]+$)/,\"\")},this._v=function(t){return this._f(t).length.toString()},this._w=function(t){return this._t(t).length.toString()},this}).call({})"
 
     RUNTIME_VARS = %w(n i v w f t)
 
@@ -44,13 +44,13 @@ class CldrPlurals::DiasporaEmitter < CldrPlurals::Compiler::Emitter
     def emit_self_contained_ruby(rules_list)
       parts = [*rules_list.rules.map {|rule| "(#{CldrPlurals::RubyEmitter.emit_rule(rule)} ? :#{rule.name} : " }, ":other"]
 
-      runtime = "#{RUBY_RUNTIME}; "
+      runtime = "#{RUBY_RUNTIME}; num = input.to_s; "
       runtime << RUNTIME_VARS.map {|var|
         "#{var} = __#{var}.(num)"
       }.join("; ")
 
       chooser = "#{parts.join}#{')' * (parts.size - 1)}"
-      "->(num) { num = num.to_s; #{runtime}; #{chooser} }"
+      "->(input) { #{runtime}; #{chooser} }"
     end
 
     def emit_self_contained_js(rules_list)
@@ -62,7 +62,7 @@ class CldrPlurals::DiasporaEmitter < CldrPlurals::Compiler::Emitter
       }.join("; ")
 
       chooser = "#{parts.join}#{')' * (parts.size - 1)}"
-      "(function(input) { #{runtime}; return #{chooser}; });"
+      "(function(input) { #{runtime}; return #{chooser}; })"
     end
   end
 end
@@ -95,5 +95,5 @@ locales.sort!
 
 destination = "config/locales/cldr/plurals.rb"
 lines = rules.select {|rule| locales.include? rule.locale.to_s }
-                             .map {|rule| "  #{rule.to_code(:diaspora)}" }
+             .map {|rule| "  #{rule.to_code(:diaspora)}" }
 File.write destination, "{\n#{lines.join(",\n")}\n}"
