@@ -1,8 +1,16 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    cldr-plurals (1.0.0)
+    coderay (1.1.0)
+    method_source (0.8.2)
     multi_json (1.11.0)
     multipart-post (2.0.0)
+    pry (0.10.1)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
+      slop (~> 3.4)
+    slop (3.6.0)
     trollop (2.1.2)
     web_translate_it (2.3.4)
       multi_json
@@ -14,5 +22,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  cldr-plurals
+  pry
   web_translate_it
   ya2yaml

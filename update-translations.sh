@@ -24,7 +24,6 @@ fi
 
 export BUNDLE_GEMFILE="$location/Gemfile"
 export BUNDLE_PATH="$location/vendor/bundle"
-
 bundle install
 
 # Ensure known state and fast forward push
