@@ -22,8 +22,7 @@ if [ "$1" = "abort" ]; then
     exit 0
 fi
 
-# Load right ruby env if needed
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
+export DB=mysql
 
 # Ensure known state and fast forward push
 if [ "$1" != "continue" ]; then
