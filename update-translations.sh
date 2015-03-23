@@ -22,7 +22,10 @@ if [ "$1" = "abort" ]; then
     exit 0
 fi
 
-export DB=mysql
+export BUNDLE_GEMFILE="$location/Gemfile"
+export BUNDLE_PATH="$location/vendor/bundle"
+
+bundle install
 
 # Ensure known state and fast forward push
 if [ "$1" != "continue" ]; then
@@ -33,9 +36,9 @@ if [ "$1" != "continue" ]; then
 fi
 
 # Pull from from web translate it and clean locale files
-wti pull &&
-$location/rename_locales.rb &&
-$location/wti_postprocessing.rb &&
+bundle exec wti pull &&
+bundle exec $location/rename_locales.rb &&
+bundle exec $location/wti_postprocessing.rb &&
 
 # Commit changes
 git add Gemfile.lock &&
@@ -46,9 +49,9 @@ git commit -m "updated $(git status -s config/locales | wc -l) locale files [ci 
 git pull catalan master &&
 
 # Check for syntax errors and unavailable stuff
-$location/yml_check.rb
-$location/unavailable_locales.rb
-$location/cldr_check.rb
+bundle exec $location/yml_check.rb
+bundle exec $location/unavailable_locales.rb
+bundle exec $location/cldr_check.rb
 
 # Restore local changes if needed
 if [ "$local_changes" != "No local changes to save" ]; then

@@ -1,0 +1,18 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    multi_json (1.11.0)
+    multipart-post (2.0.0)
+    trollop (2.1.2)
+    web_translate_it (2.3.4)
+      multi_json
+      multipart-post (~> 2.0)
+      trollop (~> 2.0)
+    ya2yaml (0.31)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  web_translate_it
+  ya2yaml
