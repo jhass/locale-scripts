@@ -11,7 +11,7 @@ class CldrPlurals::DiasporaEmitter < CldrPlurals::Compiler::Emitter
     RUBY_RUNTIME = <<-RUNTIME.lines.map {|func| func.split("#").first.strip }.join("; ")
     to_num = ->(str) { str.include?('.') ? str.to_f : str.to_i }
     _n = ->(str) { str.gsub(/(-)(.*)/, '\\2') } # absolute value of the source number (integer and decimals).
-    _i = ->(str) { _n.(str).gsub(/([\\d]+)(\..*)/, '\\1') } # integer digits of n.
+    _i = ->(str) { _n.(str).gsub(/([\\d]+)(\\..*)/, '\\1') } # integer digits of n.
     _f = ->(str) { _n.(str).gsub(/([\\d]+\\.?)(.*)/, '\\2') } # visible fractional digits in n, with trailing zeros.
     _t = ->(str) { _f.(str).gsub(/([0]+\\z)/, '') } # visible fractional digits in n, without trailing zeros.
     _v = ->(str) { _f.(str).length.to_s } # number of visible fraction digits in n, with trailing zeros.
