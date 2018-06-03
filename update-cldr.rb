@@ -67,6 +67,12 @@ class CldrPlurals::DiasporaEmitter < CldrPlurals::Compiler::Emitter
   end
 end
 
+def alias_rule(rules, source, dest)
+  source_rule = rules.find {|rule| rule.locale == source }
+  rule = CldrPlurals::Compiler::RuleList.new(dest)
+  rule.instance_variable_set(:@rules, source_rule.rules)
+  rules << rule
+end
 
 rules = JSON.parse(File.read(File.join(__dir__, "vendor/cldr-core/supplemental/plurals.json")))["supplemental"]["plurals-type-cardinal"]
 rules = rules.map {|locale, rules|
@@ -87,13 +93,17 @@ rules << CldrPlurals::Compiler::RuleList.new(:"art-nvi").tap do |list|
   # list.add_rule :other, "@integer 3~10, 100, 1000, 10000, 100000, 1000000, … @decimal 0.1~0.9, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0, …"
 end
 
+alias_rule rules, :hy, :hye
+alias_rule rules, :hy, :hyw
+alias_rule rules, :hy, :'hye-classical'
 
 locales = YAML.load_file("config/locale_settings.yml")["available"].keys
 locales.concat locales.map {|locale| locale.split("-")[0].split("_")[0] }
 locales.uniq!
 locales.sort!
+rules.sort_by!(&:locale)
 
 destination = "config/locales/cldr/plurals.rb"
 lines = rules.select {|rule| locales.include? rule.locale.to_s }
              .map {|rule| "  #{rule.to_code(:diaspora)}" }
-File.write destination, "{\n#{lines.join(",\n")}\n}"
+File.write destination, "# frozen_string_literal: true\n\n{\n#{lines.join(",\n")}\n}"
