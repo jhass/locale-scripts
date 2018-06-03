@@ -1,6 +1,4 @@
 #!/usr/bin/env ruby
-# encoding: UTF-8
-$KCODE = 'UTF8' unless RUBY_VERSION >= '1.9'
 
 require 'rubygems'
 require 'active_support/core_ext/hash/deep_merge'
@@ -8,7 +6,6 @@ require 'yaml'
 require 'ya2yaml'
 require 'fileutils'
 
-YAML::ENGINE.yamler = 'psych'
 
 header = <<HEADER
 #   Copyright (c) 2010-2013, Diaspora Inc.  This file is
