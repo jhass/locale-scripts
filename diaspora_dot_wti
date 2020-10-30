@@ -16,6 +16,7 @@ ignore_locales:
 
 mappings:
   "de-formal": "de_formal"
+  "de-moo": "de_moo"
   "en-shaw": "en_shaw"
   "en-pirate": "en_pirate"
   "en-1337": "en_1337"
