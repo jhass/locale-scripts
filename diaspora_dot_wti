@@ -5,9 +5,6 @@ api_key: nope
 # More information here: https://github.com/AtelierConvivialite/webtranslateit/wiki
 ignore_locales:
  - 'en'
- - 'ca'
- - 'gl'
- - 'sq'
 
 # Optional
 # before_pull: "echo 'some unix command'"   # Command executed before pulling files
@@ -19,6 +16,7 @@ ignore_locales:
 
 mappings:
   "de-formal": "de_formal"
+  "de-moo": "de_moo"
   "en-shaw": "en_shaw"
   "en-pirate": "en_pirate"
   "en-1337": "en_1337"
