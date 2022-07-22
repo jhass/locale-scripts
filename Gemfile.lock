@@ -22,7 +22,7 @@ GEM
     slop (3.6.0)
     thread_safe (0.3.6)
     trollop (2.1.2)
-    tzinfo (1.2.7)
+    tzinfo (1.2.10)
       thread_safe (~> 0.1)
     web_translate_it (2.3.4)
       multi_json
